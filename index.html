@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Buy Box Tracker — Mahen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --panel: #181c24;
+    --panel-hover: #1e2330;
+    --border: #252d3a;
+    --text: #e8ecf2;
+    --muted: #6b7a8d;
+    --green: #34d399;
+    --green-dim: #0f2b22;
+    --red: #f87171;
+    --red-dim: #2d1414;
+    --amber: #fbbf24;
+    --amber-dim: #2e2008;
+    --blue: #60a5fa;
+    --blue-dim: #0f1f38;
+    --purple: #a78bfa;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+
+  /* ---- HEADER ---- */
+  header {
+    padding: 24px 32px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: rgba(15, 17, 23, 0.92);
+    backdrop-filter: blur(8px);
+  }
+
+  .header-left h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .header-left .subtitle { color: var(--muted); font-size: 12px; margin-top: 3px; }
+  .live-dot {
+    display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--green); margin-right: 5px;
+    box-shadow: 0 0 0 0 rgba(52,211,153,.6);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(52,211,153,.5); }
+    70% { box-shadow: 0 0 0 6px rgba(52,211,153,0); }
+    100% { box-shadow: 0 0 0 0 rgba(52,211,153,0); }
+  }
+
+  /* ---- CHIPS RESUMEN ---- */
+  .summary { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  .chip .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ---- FILTROS ---- */
+  .filters {
+    padding: 16px 32px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .filter-btn {
+    font-size: 12px;
+    padding: 5px 14px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .filter-btn:hover { background: var(--panel-hover); color: var(--text); }
+  .filter-btn.active { background: var(--panel); color: var(--text); border-color: #3a4455; }
+  .filter-count { font-family: 'IBM Plex Mono', monospace; font-size: 10px; opacity: 0.7; }
+
+  /* ---- MAIN ---- */
+  main { padding: 24px 32px 60px; max-width: 1200px; margin: 0 auto; }
+
+  .demo-banner {
+    background: var(--blue-dim);
+    border: 1px solid var(--blue);
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+
+  /* ---- GRID DE CARDS ---- */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 16px 14px;
+    transition: background 0.15s;
+    cursor: default;
+  }
+  .card:hover { background: var(--panel-hover); }
+  .card.status-won  { border-left: 3px solid var(--green); }
+  .card.status-lost { border-left: 3px solid var(--red); }
+  .card.status-stock { border-left: 3px solid var(--amber); }
+  .card.status-error { border-left: 3px solid var(--muted); }
+
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+  .card-label { font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 14px; line-height: 1.3; }
+  .card-asin { color: var(--muted); font-size: 11px; font-family: 'IBM Plex Mono', monospace; margin-top: 2px; }
+
+  .status-pill {
+    font-size: 11px;
+    font-family: 'IBM Plex Mono', monospace;
+    padding: 3px 9px;
+    border-radius: 100px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .pill-won   { background: var(--green-dim); color: var(--green); }
+  .pill-lost  { background: var(--red-dim);   color: var(--red); }
+  .pill-stock { background: var(--amber-dim); color: var(--amber); }
+  .pill-error { background: #1c1c1c; color: var(--muted); }
+
+  .card-meta { display: flex; gap: 12px; margin: 8px 0; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+  .card-meta span b { color: var(--text); font-weight: 500; }
+
+  /* Franja de historial */
+  .stripe { display: flex; height: 20px; border-radius: 4px; overflow: hidden; border: 1px solid var(--border); margin-top: 10px; }
+  .seg { position: relative; min-width: 2px; }
+  .seg.won   { background: var(--green); opacity: .8; }
+  .seg.lost  { background: var(--red);   opacity: .8; }
+  .seg.stock { background: var(--amber); opacity: .8; }
+  .seg:hover { opacity: 1; }
+  .seg .tip {
+    position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%);
+    background: #05070a; border: 1px solid var(--border);
+    color: var(--text); font-size: 11px; font-family: 'IBM Plex Mono', monospace;
+    padding: 5px 8px; border-radius: 5px; white-space: nowrap;
+    opacity: 0; pointer-events: none; transition: opacity .1s; z-index: 5;
+  }
+  .seg:hover .tip { opacity: 1; }
+  .stripe-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); margin-top: 4px; font-family: 'IBM Plex Mono', monospace; }
+  .no-history { color: var(--muted); font-size: 11px; padding: 5px 8px; }
+
+  /* ---- SECCIÓN HISTÓRICO ---- */
+  .section-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 36px 0 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th {
+    text-align: left;
+    color: var(--muted);
+    font-weight: 500;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  td { padding: 9px 10px; border-bottom: 1px solid var(--border); }
+  tr:last-child td { border-bottom: none; }
+  td.mono { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--muted); white-space: nowrap; }
+  td.event-won   { color: var(--green); font-weight: 600; }
+  td.event-lost  { color: var(--red);   font-weight: 600; }
+  td.event-stock { color: var(--amber); font-weight: 600; }
+
+  .empty-state { color: var(--muted); font-size: 13px; padding: 30px 0; text-align: center; }
+
+  @media (max-width: 600px) {
+    header, .filters, main { padding-left: 16px; padding-right: 16px; }
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>Buy Box Tracker — Mahen</h1>
+    <div class="subtitle"><span class="live-dot"></span>Última comprobación: <span id="lastCheck" style="font-family:'IBM Plex Mono',monospace;">—</span></div>
+  </div>
+  <div class="summary" id="summaryChips"></div>
+</header>
+
+<div class="filters" id="filtersBar"></div>
+
+<main>
+  <div id="demoBanner" class="demo-banner" style="display:none;">
+    Datos de ejemplo. Cuando GitHub Actions guarde datos reales en <code>data/</code> y publiques el repo con GitHub Pages, este dashboard los cargará automáticamente.
+  </div>
+
+  <div class="grid" id="cardsGrid"></div>
+
+  <div class="section-title">Histórico de cambios</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Fecha / hora</th>
+        <th>Producto</th>
+        <th>Evento</th>
+        <th>Vendedor</th>
+        <th>Precio</th>
+      </tr>
+    </thead>
+    <tbody id="eventsBody"></tbody>
+  </table>
+  <div id="emptyEvents" class="empty-state" style="display:none;">Sin cambios registrados todavía.</div>
+</main>
+
+<script>
+// ---------- DATOS DE EJEMPLO ----------
+const now = () => new Date().toISOString();
+function ago(h) { return new Date(Date.now() - h * 3600000).toISOString(); }
+
+const DEMO_CURRENT = {
+  "B00DN9QLNA": { label: "Mas Omegas 90 Perlas",  seller_name: "Amazon.es", seller_type: "amazon_es", has_buybox_amazon: true,  in_stock: true,  price: "15,99€", last_checked: now() },
+  "B00DN9QM84": { label: "Mas Omegas 180 Perlas", seller_name: "VitaPlus S.L.", seller_type: "third_party", has_buybox_amazon: false, in_stock: true,  price: "22,50€", last_checked: now() },
+  "B00DN9QNFQ": { label: "Aqualim Más Bella 500ml", seller_name: "Amazon EU S.a.r.L.", seller_type: "amazon_eu", has_buybox_amazon: true, in_stock: true, price: "12,99€", last_checked: now() },
+  "B00DN9QO1E": { label: "Fitopat Cap 60 Cap",   seller_name: null, seller_type: "unknown", has_buybox_amazon: false, in_stock: false, price: null, last_checked: now() },
+  "B00DN9QOQE": { label: "Florin 30 Cap",        seller_name: "Amazon.es", seller_type: "amazon_es", has_buybox_amazon: true,  in_stock: true,  price: "9,95€", last_checked: now() },
+};
+
+const DEMO_HISTORY = [
+  { timestamp: ago(72), asin: "B00DN9QLNA", label: "Mas Omegas 90 Perlas",  event: "won",  seller_name: "Amazon.es", price: "15,99€" },
+  { timestamp: ago(48), asin: "B00DN9QLNA", label: "Mas Omegas 90 Perlas",  event: "lost", seller_name: "VitaPlus", price: "13,50€" },
+  { timestamp: ago(36), asin: "B00DN9QLNA", label: "Mas Omegas 90 Perlas",  event: "won",  seller_name: "Amazon.es", price: "15,99€" },
+  { timestamp: ago(70), asin: "B00DN9QM84", label: "Mas Omegas 180 Perlas", event: "lost", seller_name: "VitaPlus S.L.", price: "22,50€" },
+  { timestamp: ago(5),  asin: "B00DN9QO1E", label: "Fitopat Cap 60 Cap",    event: "out_of_stock", seller_name: null, price: null },
+];
+
+// ---------- CARGA DE DATOS REALES ----------
+async function loadData() {
+  let current, history, isDemo = false;
+  try {
+    const [curRes, histRes] = await Promise.all([
+      fetch('./data/current_status.json'),
+      fetch('./data/history.json')
+    ]);
+    if (!curRes.ok || !histRes.ok) throw new Error('sin datos');
+    current = await curRes.json();
+    history = await histRes.json();
+    if (!Object.keys(current).length) throw new Error('vacío');
+  } catch {
+    current = DEMO_CURRENT;
+    history = DEMO_HISTORY;
+    isDemo = true;
+  }
+  render(current, history, isDemo);
+}
+
+// ---------- HELPERS ----------
+function fmtDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleString('es-ES', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+}
+
+function statusOf(entry) {
+  if (entry.in_stock === false) return 'stock';
+  if (entry.has_buybox_amazon)  return 'won';
+  return 'lost';
+}
+
+function statusLabel(entry) {
+  if (entry.last_error)         return 'Error scraping';
+  if (entry.in_stock === false) return 'Sin stock';
+  if (entry.has_buybox_amazon) {
+    if (entry.seller_type === 'amazon_eu') return 'BB · Amazon EU';
+    return 'Buy Box ✓';
+  }
+  return entry.seller_name ? `BB perdida` : 'BB perdida';
+}
+
+function eventLabel(ev) {
+  return { won:'✅ Recuperada', lost:'❌ Perdida', out_of_stock:'⚠️ Sin stock' }[ev] || ev;
+}
+
+// ---------- RENDER ----------
+let _current = {}, _history = [];
+let activeFilter = 'all';
+
+function applyFilter(filter) {
+  activeFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === filter));
+  renderCards(_current, _history);
+}
+
+function renderCards(current, history) {
+  const grid = document.getElementById('cardsGrid');
+  grid.innerHTML = '';
+
+  const asins = Object.keys(current).filter(asin => {
+    if (activeFilter === 'all') return true;
+    return statusOf(current[asin]) === activeFilter;
+  });
+
+  if (!asins.length) {
+    grid.innerHTML = '<p class="empty-state" style="grid-column:1/-1;">Sin productos en esta categoría.</p>';
+    return;
+  }
+
+  // Ordenar: primero las pérdidas, luego sin stock, luego ganadas
+  asins.sort((a, b) => {
+    const order = { lost: 0, stock: 1, won: 2 };
+    return (order[statusOf(current[a])] ?? 3) - (order[statusOf(current[b])] ?? 3);
+  });
+
+  asins.forEach(asin => {
+    const c = current[asin];
+    const st = statusOf(c);
+    const evs = history.filter(h => h.asin === asin).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+    // Franja de historial
+    let stripeHTML = '';
+    if (evs.length) {
+      const start = new Date(evs[0].timestamp).getTime();
+      const end   = Date.now();
+      const total = Math.max(end - start, 1);
+      const segs = evs.map((e, i) => {
+        const sStart = new Date(e.timestamp).getTime();
+        const sEnd   = i < evs.length - 1 ? new Date(evs[i+1].timestamp).getTime() : end;
+        const w      = Math.max(((sEnd - sStart) / total) * 100, 0.3);
+        const segSt  = { won:'won', lost:'lost', out_of_stock:'stock' }[e.event] || statusOf(e);
+        return `<div class="seg ${segSt}" style="flex:${w} 0 0;"><div class="tip">${fmtDate(e.timestamp)} — ${eventLabel(e.event)}<br>${e.seller_name || ''}</div></div>`;
+      });
+      stripeHTML = `
+        <div class="stripe">${segs.join('')}</div>
+        <div class="stripe-labels">
+          <span>${fmtDate(evs[0].timestamp)}</span><span>ahora</span>
+        </div>`;
+    } else {
+      stripeHTML = `<div class="stripe"><span class="no-history">Sin historial todavía</span></div>`;
+    }
+
+    // Info meta
+    const metaItems = [];
+    if (c.price) metaItems.push(`<span>Precio: <b>${c.price}</b></span>`);
+    if (c.seller_name && !c.has_buybox_amazon) metaItems.push(`<span>Ganador: <b style="color:var(--red)">${c.seller_name}</b></span>`);
+
+    const card = document.createElement('div');
+    card.className = `card status-${st}`;
+    card.innerHTML = `
+      <div class="card-top">
+        <div>
+          <div class="card-label">${c.label || asin}</div>
+          <div class="card-asin">${asin}</div>
+        </div>
+        <div class="status-pill pill-${st === 'won' ? 'won' : st === 'stock' ? 'stock' : 'lost'}">${statusLabel(c)}</div>
+      </div>
+      ${metaItems.length ? `<div class="card-meta">${metaItems.join('')}</div>` : ''}
+      ${stripeHTML}
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function render(current, history, isDemo) {
+  _current = current;
+  _history = history;
+
+  document.getElementById('demoBanner').style.display = isDemo ? 'block' : 'none';
+
+  // Última comprobación
+  const times = Object.values(current).map(c => c.last_checked).filter(Boolean).sort().reverse();
+  document.getElementById('lastCheck').textContent = times.length ? fmtDate(times[0]) : '—';
+
+  // Chips resumen
+  const counts = { won: 0, lost: 0, stock: 0, error: 0 };
+  Object.values(current).forEach(c => {
+    if (c.last_error) counts.error++;
+    else counts[statusOf(c)]++;
+  });
+
+  document.getElementById('summaryChips').innerHTML = `
+    <div class="chip"><span class="dot" style="background:var(--green)"></span>${counts.won} con BB</div>
+    <div class="chip"><span class="dot" style="background:var(--red)"></span>${counts.lost} perdida${counts.lost !== 1 ? 's' : ''}</div>
+    ${counts.stock ? `<div class="chip"><span class="dot" style="background:var(--amber)"></span>${counts.stock} sin stock</div>` : ''}
+  `;
+
+  // Filtros
+  const total = Object.keys(current).length;
+  document.getElementById('filtersBar').innerHTML = `
+    <button class="filter-btn active" data-filter="all" onclick="applyFilter('all')">Todos <span class="filter-count">${total}</span></button>
+    <button class="filter-btn" data-filter="lost" onclick="applyFilter('lost')">❌ Perdidas <span class="filter-count">${counts.lost}</span></button>
+    <button class="filter-btn" data-filter="won" onclick="applyFilter('won')">✅ Ganadas <span class="filter-count">${counts.won}</span></button>
+    ${counts.stock ? `<button class="filter-btn" data-filter="stock" onclick="applyFilter('stock')">⚠️ Sin stock <span class="filter-count">${counts.stock}</span></button>` : ''}
+  `;
+
+  renderCards(current, history);
+
+  // Tabla histórico (últimos 100 eventos, más reciente primero)
+  const body = document.getElementById('eventsBody');
+  const sorted = [...history].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  document.getElementById('emptyEvents').style.display = sorted.length ? 'none' : 'block';
+  body.innerHTML = sorted.slice(0, 100).map(ev => {
+    const evClass = { won: 'event-won', lost: 'event-lost', out_of_stock: 'event-stock' }[ev.event] || '';
+    return `<tr>
+      <td class="mono">${fmtDate(ev.timestamp)}</td>
+      <td>${ev.label || ev.asin}</td>
+      <td class="${evClass}">${eventLabel(ev.event)}</td>
+      <td style="color:var(--muted); font-size:12px;">${ev.seller_name || '—'}</td>
+      <td style="font-family:'IBM Plex Mono',monospace; font-size:12px;">${ev.price || '—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+loadData();
+</script>
+</body>
+</html>
