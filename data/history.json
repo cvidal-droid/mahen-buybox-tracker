@@ -702,5 +702,16 @@
     "has_buybox_amazon": false,
     "in_stock": true,
     "price": ""
+  },
+  {
+    "timestamp": "2026-08-16T10:51:03.139839+00:00",
+    "asin": "B07RWK3JWM",
+    "label": "Dinafén Plus x20 Viales",
+    "event": "lost",
+    "seller_name": null,
+    "seller_type": "unknown",
+    "has_buybox_amazon": false,
+    "in_stock": true,
+    "price": null
   }
 ]
