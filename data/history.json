@@ -1791,5 +1791,16 @@
     "has_buybox_amazon": false,
     "in_stock": true,
     "price": null
+  },
+  {
+    "timestamp": "2026-09-02T13:49:32.080484+00:00",
+    "asin": "B07RWK3JWM",
+    "label": "Dinafén Plus x20 Viales",
+    "event": "lost",
+    "seller_name": "Protis",
+    "seller_type": "third_party",
+    "has_buybox_amazon": false,
+    "in_stock": true,
+    "price": ""
   }
 ]
