@@ -1758,5 +1758,16 @@
     "has_buybox_amazon": false,
     "in_stock": true,
     "price": ""
+  },
+  {
+    "timestamp": "2026-09-02T00:28:37.236613+00:00",
+    "asin": "B071FFGR2J",
+    "label": "Colagenium 600",
+    "event": "lost",
+    "seller_name": null,
+    "seller_type": "unknown",
+    "has_buybox_amazon": false,
+    "in_stock": true,
+    "price": null
   }
 ]
