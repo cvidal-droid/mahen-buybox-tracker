@@ -2341,5 +2341,16 @@
     "has_buybox_amazon": false,
     "in_stock": true,
     "price": null
+  },
+  {
+    "timestamp": "2026-10-14T16:51:42.295615+00:00",
+    "asin": "B071FFGR2J",
+    "label": "Colagenium 600",
+    "event": "lost",
+    "seller_name": "Protis",
+    "seller_type": "third_party",
+    "has_buybox_amazon": false,
+    "in_stock": true,
+    "price": ""
   }
 ]
