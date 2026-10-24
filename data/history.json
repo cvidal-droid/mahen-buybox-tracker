@@ -2506,5 +2506,27 @@
     "has_buybox_amazon": false,
     "in_stock": true,
     "price": ""
+  },
+  {
+    "timestamp": "2026-10-24T22:18:40.847504+00:00",
+    "asin": "B00DN9QQ3U",
+    "label": "Fluyen 20 Ampollas",
+    "event": "lost",
+    "seller_name": "IJSalutStore",
+    "seller_type": "third_party",
+    "has_buybox_amazon": false,
+    "in_stock": true,
+    "price": ""
+  },
+  {
+    "timestamp": "2026-10-24T22:18:40.847504+00:00",
+    "asin": "B071FFGR2J",
+    "label": "Colagenium 600",
+    "event": "lost",
+    "seller_name": null,
+    "seller_type": "unknown",
+    "has_buybox_amazon": false,
+    "in_stock": true,
+    "price": null
   }
 ]
