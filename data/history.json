@@ -2528,5 +2528,16 @@
     "has_buybox_amazon": false,
     "in_stock": true,
     "price": null
+  },
+  {
+    "timestamp": "2026-10-25T00:27:13.247157+00:00",
+    "asin": "B00DN9QQ3U",
+    "label": "Fluyen 20 Ampollas",
+    "event": "lost",
+    "seller_name": null,
+    "seller_type": "unknown",
+    "has_buybox_amazon": false,
+    "in_stock": true,
+    "price": null
   }
 ]
